@@ -1,5 +1,7 @@
 import './App.css'
 
+import {v4 as uuidv4} from 'uuid'
+
 import {Component} from 'react'
 
 class App extends Component {
@@ -24,21 +26,19 @@ class App extends Component {
     this.setState({password: event.target.value})
   }
 
-  a = () => {
+  add = event => {
+    event.preventDefault()
     const {username, website, password} = this.state
-    const li = {
+
+    const a = {
+      id: uuidv4(),
       us: {username},
       web: {website},
       pas: {password},
     }
-    return li
-  }
-
-  add = event => {
-    event.preventDefault()
 
     this.setState(prevState => ({
-      finalpsList: [...prevState.finalpsList, this.a],
+      finalpsList: [...prevState.finalpsList, a],
       username: '',
       password: '',
       website: '',
@@ -53,12 +53,20 @@ class App extends Component {
     this.setState({last: event.target.value})
   }
 
-  filtering = () => {
-    const {finalpsList, last} = this.state
-    const a = finalpsList.filter(each => each.website.includes(last))
+  filtering = event => {
+    const {finalpsList} = this.state
+    const a = finalpsList.filter(each =>
+      each.website.includes(event.target.value),
+    )
     this.setState({
       finalpsList: a,
+      last: event.target.value,
     })
+  }
+
+  deleted = id => {
+    const {finalpsList} = this.state
+    this.setState({finalpsList: finalpsList.map(each => id !== each.id)})
   }
 
   render() {
@@ -146,18 +154,19 @@ class App extends Component {
               </div>
             </div>
             <hr />
-            <button type="button" onClick={this.show}>
-              <input type="checkbox" id="check" />
-              <label htmlFor="check">Show passwords</label>
-            </button>
+
+            <input type="checkbox" id="check" onChange={this.show} />
+            <label htmlFor="check">Show passwords</label>
+
             {finalpsList.length !== 0 && (
               <ul>
                 {finalpsList.map(each => (
-                  <li>
-                    <p>{each.website}</p>
-                    <p>{each.username}</p>
+                  <li key={each.id}>
+                    {console.log(each)}
+                    <p>{each.web.website}</p>
+                    <p>{each.us.username}</p>
                     {x ? (
-                      <p>{each.password}</p>
+                      <p>{each.pas.password}</p>
                     ) : (
                       <img
                         alt="stars"
@@ -165,7 +174,7 @@ class App extends Component {
                       />
                     )}
                     <button
-                      type="button"
+                      type="submit"
                       data-testid="delete"
                       onClick={this.deleted}
                     >
@@ -179,13 +188,16 @@ class App extends Component {
               </ul>
             )}
             {finalpsList.length === 0 && (
-              <img
-                className="no-ps"
-                src="https://assets.ccbp.in/frontend/react-js/no-passwords-img.png"
-                alt="no passwords"
-              />
+              <>
+                <img
+                  className="no-ps"
+                  src="https://assets.ccbp.in/frontend/react-js/no-passwords-img.png"
+                  alt="no passwords"
+                />
+                <br />
+                <p>No Passwords</p>
+              </>
             )}
-            {finalpsList.length === 0 && <p>No Passwords</p>}
           </div>
         </div>
       </form>
@@ -194,3 +206,4 @@ class App extends Component {
 }
 
 export default App
+
